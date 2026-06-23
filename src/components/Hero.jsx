@@ -251,16 +251,16 @@ export default function Hero({ theme }) {
           initial="hidden"
           animate="visible"
         >
+          {/* Main heading GENCOFT */}
+          <motion.h1 className="hero-title-left" variants={itemV}>
+            GENCOFT
+          </motion.h1>
+
           {/* Eyebrow tag */}
           <motion.p className="hero-eyebrow-new" variants={itemV}>
             <span className="hero-eyebrow-dot" />
             Innovative Software Agency
           </motion.p>
-
-          {/* Main heading GENCOFT */}
-          <motion.h1 className="hero-title-left" variants={itemV}>
-            GENCOFT
-          </motion.h1>
 
           {/* Description */}
           <motion.p className="hero-desc-new" variants={itemV}>
