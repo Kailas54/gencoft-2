@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap');
+
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -22,8 +24,8 @@
   --gradient-hero: linear-gradient(135deg, #0d0d0d 0%, #111111 50%, #151515 100%);
   --gradient-accent: linear-gradient(135deg, #ea580c, #fb923c);
   --gradient-card: linear-gradient(135deg, rgba(234, 88, 12, 0.06), rgba(251, 146, 60, 0.03));
-  --font-primary: 'Outfit', sans-serif;
-  --font-secondary: 'Inter', sans-serif;
+  --font-primary: 'Open Sans', sans-serif;
+  --font-secondary: 'Open Sans', sans-serif;
   --radius-sm: 8px;
   --radius-md: 16px;
   --radius-lg: 24px;
@@ -321,20 +323,22 @@ body::before {
   padding: 120px 60px 80px 80px;
   position: relative;
   z-index: 3;
-  /* Dreamy gradient background overlay */
-  background: radial-gradient(circle at 10% 20%, rgba(234, 88, 12, 0.08) 0%, transparent 60%),
-              radial-gradient(circle at 90% 80%, rgba(139, 92, 246, 0.05) 0%, transparent 60%),
-              rgba(11, 11, 13, 0.6);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-right: 1px solid rgba(234, 88, 12, 0.12);
+  /* Dreamy gradient background overlay with inset right edge glow */
+  background: radial-gradient(circle at 0% 0%, rgba(234, 88, 12, 0.12) 0%, transparent 50%),
+              radial-gradient(circle at 100% 100%, rgba(139, 92, 246, 0.08) 0%, transparent 60%),
+              rgba(11, 11, 13, 0.65);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-right: 1px solid rgba(234, 88, 12, 0.15);
+  box-shadow: inset -1px 0 0 rgba(234, 88, 12, 0.1);
 }
 
 .light-mode .hero-left-col {
-  background: radial-gradient(circle at 10% 20%, rgba(234, 88, 12, 0.1) 0%, transparent 50%),
-              radial-gradient(circle at 90% 80%, rgba(20, 184, 166, 0.08) 0%, transparent 60%),
+  background: radial-gradient(circle at 0% 0%, rgba(234, 88, 12, 0.15) 0%, transparent 50%),
+              radial-gradient(circle at 100% 100%, rgba(20, 184, 166, 0.1) 0%, transparent 60%),
               rgba(255, 255, 255, 0.82);
   border-right-color: rgba(234, 88, 12, 0.1);
+  box-shadow: inset -1px 0 0 rgba(234, 88, 12, 0.05);
 }
 
 .hero-left-content-inner {
@@ -342,6 +346,38 @@ body::before {
   flex-direction: column;
   gap: 24px;
   max-width: 540px;
+}
+
+/* Stencil Mask Cutout Container */
+.hero-title-mask-container {
+  background: #0d0d0d; /* matches the body background behind canvas */
+  mix-blend-mode: multiply;
+  display: block;
+  width: fit-content;
+  margin-bottom: 24px;
+}
+
+.light-mode .hero-title-mask-container {
+  background: var(--bg-primary); /* #f8fafc */
+  mix-blend-mode: screen;
+}
+
+/* Left Title GENCOFT */
+.hero-title-left {
+  font-family: var(--font-primary);
+  font-size: clamp(3.5rem, 8vw, 7rem);
+  font-weight: 900;
+  line-height: 0.9;
+  letter-spacing: -0.05em;
+  margin: 0;
+  text-transform: uppercase;
+  color: #ffffff; /* White text becomes fully transparent cutout in multiply mode */
+  background: transparent;
+  -webkit-text-stroke: 0;
+}
+
+.light-mode .hero-title-left {
+  color: #000000; /* Black text becomes transparent cutout in screen mode */
 }
 
 /* Eyebrow */
@@ -379,20 +415,6 @@ body::before {
   color: var(--text-muted);
 }
 
-/* Left Title GENCOFT */
-.hero-title-left {
-  font-family: var(--font-primary);
-  font-size: clamp(3.5rem, 8vw, 7rem);
-  font-weight: 900;
-  line-height: 0.9;
-  letter-spacing: -0.05em;
-  margin: 0;
-  text-transform: uppercase;
-  color: transparent;
-  -webkit-text-stroke: 2px #ea580c;
-  margin-bottom: 8px;
-}
-
 /* Description */
 .hero-desc-new {
   font-family: var(--font-secondary);
@@ -428,13 +450,13 @@ body::before {
   font-weight: 700;
   text-decoration: none;
   border-radius: 50px;
-  box-shadow: 0 4px 20px rgba(234, 88, 12, 0.35);
+  box-shadow: 0 0 20px rgba(234, 88, 12, 0.4); /* Premium Glow shadow */
   transition: var(--transition);
 }
 
 .hero-btn-primary-new:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 40px rgba(234, 88, 12, 0.65);
+  box-shadow: 0 0 35px rgba(234, 88, 12, 0.7); /* Enhanced Glow on Hover */
 }
 
 .hero-btn-ghost-new {
@@ -458,6 +480,7 @@ body::before {
   background: rgba(255, 255, 255, 0.1);
   border-color: rgba(234, 88, 12, 0.45);
   transform: translateY(-2px);
+  box-shadow: 0 0 20px rgba(234, 88, 12, 0.25); /* Subtle Glow on Hover */
 }
 
 .light-mode .hero-btn-ghost-new {

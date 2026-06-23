@@ -243,6 +243,18 @@ export default function Hero({ theme }) {
   return (
     <section className="hero-split-container" id="home">
       
+      {/* 3D WebGL Canvas (Rendered as full section background) */}
+      <div className="hero-canvas-container">
+        <Canvas
+          camera={{ position: [0, 0, 4], fov: 55 }}
+          gl={{ antialias: false, alpha: true }}
+          dpr={Math.min(window.devicePixelRatio, 1.5)}
+          style={{ width: '100%', height: '100%' }}
+        >
+          <Scene theme={theme} />
+        </Canvas>
+      </div>
+
       {/* ── Left Column: Text & Content ── */}
       <div className="hero-left-col">
         <motion.div
@@ -251,10 +263,12 @@ export default function Hero({ theme }) {
           initial="hidden"
           animate="visible"
         >
-          {/* Main heading GENCOFT */}
-          <motion.h1 className="hero-title-left" variants={itemV}>
-            GENCOFT
-          </motion.h1>
+          {/* Main heading GENCOFT (with mask cutout container) */}
+          <motion.div className="hero-title-mask-container" variants={itemV}>
+            <h1 className="hero-title-left">
+              GENCOFT
+            </h1>
+          </motion.div>
 
           {/* Eyebrow tag */}
           <motion.p className="hero-eyebrow-new" variants={itemV}>
@@ -315,18 +329,6 @@ export default function Hero({ theme }) {
 
       {/* ── Right Column: 3D Visual & Technologies Title ── */}
       <div className="hero-right-col">
-        {/* 3D WebGL Canvas */}
-        <div className="hero-canvas-container">
-          <Canvas
-            camera={{ position: [0, 0, 4], fov: 55 }}
-            gl={{ antialias: false, alpha: true }}
-            dpr={Math.min(window.devicePixelRatio, 1.5)}
-            style={{ width: '100%', height: '100%' }}
-          >
-            <Scene theme={theme} />
-          </Canvas>
-        </div>
-
         {/* Canvas overlay gradient */}
         <div className="hero-canvas-overlay-new" />
 
