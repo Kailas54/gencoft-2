@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
-import { motion, AnimatePresence, useInView } from 'framer-motion'
+import { motion, AnimatePresence, useInView, useMotionValue, useSpring, useTransform } from 'framer-motion'
 
-/* ── Project data (icons via SVG, no emojis) ── */
+/* ── Project data ── */
 const projects = [
   {
     id: 'fmc',
@@ -72,76 +72,116 @@ const projects = [
   },
 ]
 
-/* ── Desktop 3D book page-turning transition ── */
+/* ── Cinematic 3D depth transition ──
+   Exit:  card tilts away on Y-axis + shrinks into depth + fades out
+   Enter: card erupts from deep Z, rotates back to flat, content staggers in
+*/
+const EASE_EXPO = [0.16, 1, 0.3, 1]
+const EASE_BACK = [0.34, 1.56, 0.64, 1]
+
 const pageVariantsDesktop = {
   enter: (dir) => ({
-    rotateY: dir > 0 ? 85 : -85,
+    rotateY: dir > 0 ? 55 : -55,
+    rotateX: -6,
+    scale: 0.82,
+    z: -400,
     opacity: 0,
-    scale: 0.94,
-    z: -150,
-    x: 0,
+    filter: 'blur(8px)',
   }),
   center: {
     rotateY: 0,
-    opacity: 1,
+    rotateX: 0,
     scale: 1,
     z: 0,
-    x: 0,
+    opacity: 1,
+    filter: 'blur(0px)',
     transition: {
-      duration: 0.8,
-      ease: [0.25, 1, 0.36, 1],
+      duration: 0.9,
+      ease: EASE_EXPO,
     },
   },
   exit: (dir) => ({
-    rotateY: dir > 0 ? -85 : 85,
+    rotateY: dir > 0 ? -45 : 45,
+    rotateX: 8,
+    scale: 0.88,
+    z: -300,
     opacity: 0,
-    scale: 0.94,
-    z: -150,
-    x: 0,
+    filter: 'blur(6px)',
     transition: {
-      duration: 0.7,
-      ease: [0.25, 1, 0.36, 1],
+      duration: 0.65,
+      ease: [0.4, 0, 1, 1],
     },
   }),
 }
 
-/* ── Mobile 2D slide fade transition (no 3D distortion on vertical layout) ── */
 const pageVariantsMobile = {
   enter: (dir) => ({
-    x: dir > 0 ? 100 : -100,
+    x: dir > 0 ? '100%' : '-100%',
+    rotateY: dir > 0 ? 18 : -18,
+    scale: 0.9,
     opacity: 0,
-    scale: 0.96,
-    rotateY: 0,
-    z: 0,
   }),
   center: {
-    x: 0,
-    opacity: 1,
-    scale: 1,
+    x: '0%',
     rotateY: 0,
-    z: 0,
-    transition: {
-      duration: 0.5,
-      ease: [0.25, 1, 0.36, 1],
-    },
+    scale: 1,
+    opacity: 1,
+    transition: { duration: 0.6, ease: EASE_EXPO },
   },
   exit: (dir) => ({
-    x: dir < 0 ? 100 : -100,
+    x: dir > 0 ? '-60%' : '60%',
+    rotateY: dir > 0 ? -12 : 12,
+    scale: 0.88,
     opacity: 0,
-    scale: 0.96,
-    rotateY: 0,
-    z: 0,
-    transition: {
-      duration: 0.45,
-      ease: [0.25, 1, 0.36, 1],
-    },
+    transition: { duration: 0.5, ease: [0.4, 0, 1, 1] },
   }),
 }
 
+/* ── Content stagger for inner elements ── */
+const contentV = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.07, delayChildren: 0.15 } },
+}
+const rowV = {
+  hidden: { opacity: 0, y: 22, filter: 'blur(4px)' },
+  visible: { opacity: 1, y: 0, filter: 'blur(0px)', transition: { duration: 0.55, ease: EASE_EXPO } },
+}
 
+/* ── Parallax 3D tilt on mouse (desktop only) ── */
+function TiltCard({ children, className, style, isMobile }) {
+  const ref = useRef(null)
+  const mouseX = useMotionValue(0)
+  const mouseY = useMotionValue(0)
 
+  const rotX = useSpring(useTransform(mouseY, [-0.5, 0.5], [5, -5]), { stiffness: 120, damping: 20 })
+  const rotY = useSpring(useTransform(mouseX, [-0.5, 0.5], [-6, 6]), { stiffness: 120, damping: 20 })
 
-/* ── Arrow icon ── */
+  const handleMouseMove = (e) => {
+    if (isMobile) return
+    const rect = ref.current.getBoundingClientRect()
+    mouseX.set((e.clientX - rect.left) / rect.width - 0.5)
+    mouseY.set((e.clientY - rect.top)  / rect.height - 0.5)
+  }
+
+  const handleMouseLeave = () => {
+    mouseX.set(0)
+    mouseY.set(0)
+  }
+
+  return (
+    <motion.div
+      ref={ref}
+      className={className}
+      style={{ ...style, rotateX: isMobile ? 0 : rotX, rotateY: isMobile ? 0 : rotY }}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+    >
+      {children}
+    </motion.div>
+  )
+}
+
+/* ── Icons ── */
 const ArrowLeft = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M19 12H5M12 19l-7-7 7-7"/>
@@ -204,8 +244,8 @@ export default function Projects() {
           <p className="pj-subtitle">Featured work that showcases our expertise</p>
         </motion.div>
 
-        {/* Slider viewport */}
-        <div className="pj-book">
+        {/* ── Slider viewport ── */}
+        <div className="pj-book" style={{ perspective: isMobile ? 'none' : '1600px' }}>
           <AnimatePresence mode="wait" custom={dir}>
             <motion.div
               key={project.id}
@@ -215,82 +255,100 @@ export default function Projects() {
               initial="enter"
               animate="center"
               exit="exit"
-              style={{
-                transformOrigin: dir > 0 ? 'left center' : 'right center',
-                transformStyle: 'preserve-3d',
-              }}
+              style={{ transformStyle: 'preserve-3d' }}
             >
 
-              {/* Left: text side */}
-              <motion.div
+              {/* ── Left: text side with stagger ── */}
+              <TiltCard
                 className="pj-page-left"
-                whileHover={isMobile ? {} : { rotateY: 3, z: 5 }}
-                style={{
-                  transformOrigin: 'right center',
-                  transformStyle: 'preserve-3d',
-                }}
-                transition={{ type: 'spring', stiffness: 150, damping: 15 }}
+                isMobile={isMobile}
+                style={{ transformStyle: 'preserve-3d' }}
               >
-                {/* Big background number */}
                 <div className="pj-bg-num">{project.number}</div>
 
-                <div className="pj-page-left-inner">
-                  <div className="pj-category">{project.category}</div>
+                <motion.div
+                  className="pj-page-left-inner"
+                  variants={contentV}
+                  initial="hidden"
+                  animate="visible"
+                >
+                  <motion.div className="pj-category" variants={rowV}>
+                    {project.category}
+                  </motion.div>
 
-                  <div className="pj-icon-wrap">
+                  <motion.div className="pj-icon-wrap" variants={rowV}
+                    whileHover={{ rotate: [0, -8, 8, 0], scale: 1.12 }}
+                    transition={{ duration: 0.45 }}
+                  >
                     {project.icon}
-                  </div>
+                  </motion.div>
 
-                  <h3 className="pj-name">{project.name}</h3>
-                  <p className="pj-desc">{project.desc}</p>
+                  <motion.h3 className="pj-name" variants={rowV}>
+                    {project.name}
+                  </motion.h3>
 
-                  <div className="pj-tags">
+                  <motion.p className="pj-desc" variants={rowV}>
+                    {project.desc}
+                  </motion.p>
+
+                  <motion.div className="pj-tags" variants={rowV}>
                     {project.tags.map((t) => (
                       <span key={t} className="pj-tag">{t}</span>
                     ))}
-                  </div>
+                  </motion.div>
 
-                  <a href={project.link} className="pj-link" target="_blank" rel="noopener noreferrer">
+                  <motion.a
+                    href={project.link}
+                    className="pj-link"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    variants={rowV}
+                    whileHover={{ scale: 1.04, y: -2 }}
+                    whileTap={{ scale: 0.96 }}
+                  >
                     View Project <ExternalLink />
-                  </a>
-                </div>
-              </motion.div>
+                  </motion.a>
+                </motion.div>
+              </TiltCard>
 
-              {/* Right: visual side */}
-              <motion.div
+              {/* ── Right: visual side ── */}
+              <TiltCard
                 className="pj-page-right"
-                whileHover={isMobile ? {} : { rotateY: -3, z: 5 }}
-                style={{
-                  transformOrigin: 'left center',
-                  transformStyle: 'preserve-3d',
-                }}
-                transition={{ type: 'spring', stiffness: 150, damping: 15 }}
+                isMobile={isMobile}
+                style={{ transformStyle: 'preserve-3d' }}
               >
-                {/* Decorative grid */}
                 <div className="pj-right-grid" />
 
-                {/* Animated glow */}
                 <motion.div
                   className="pj-right-glow"
-                  animate={{ scale: [1, 1.15, 1], opacity: [0.5, 0.9, 0.5] }}
+                  animate={{ scale: [1, 1.18, 1], opacity: [0.45, 0.95, 0.45] }}
                   transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
                 />
 
-                {/* Large icon display */}
-                <div className="pj-right-icon">
+                {/* Floating icon with depth */}
+                <motion.div
+                  className="pj-right-icon"
+                  initial={{ scale: 0.7, opacity: 0, y: 20 }}
+                  animate={{ scale: 1, opacity: 1, y: 0 }}
+                  transition={{ duration: 0.7, delay: 0.3, ease: EASE_BACK }}
+                  whileHover={{ scale: 1.08, rotate: 4 }}
+                >
                   {project.icon}
-                </div>
+                </motion.div>
 
-                {/* Corner number watermark */}
+                {/* Orbiting ring decoration */}
+                <motion.div
+                  className="pj-orbit-ring"
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 18, repeat: Infinity, ease: 'linear' }}
+                />
+
                 <div className="pj-right-num">{project.number}</div>
-
-                {/* Bottom label */}
                 <div className="pj-right-label">{project.name.toUpperCase()}</div>
-              </motion.div>
+              </TiltCard>
             </motion.div>
           </AnimatePresence>
         </div>
-
 
         {/* Controls */}
         <div className="pj-controls">

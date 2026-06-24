@@ -1,129 +1,182 @@
-import { useRef } from 'react'
-import { motion, useInView } from 'framer-motion'
+import { useState, useCallback } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 
-const MobileIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="22" height="22">
-    <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
-    <line x1="12" y1="18" x2="12.01" y2="18"/>
-  </svg>
-)
-const WebIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="22" height="22">
-    <circle cx="12" cy="12" r="10"/>
-    <line x1="2" y1="12" x2="22" y2="12"/>
-    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-  </svg>
-)
-const ShieldIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="22" height="22">
-    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-  </svg>
-)
-const CloudIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="22" height="22">
-    <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/>
-  </svg>
-)
+import mobileSrc  from '../assets/service_mobile.png'
+import webSrc     from '../assets/service_web.png'
+import secSrc     from '../assets/service_security.png'
+import cloudSrc   from '../assets/service_cloud.png'
 
-const WhatWeDoIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" width="12" height="12">
-    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+/* ── Arrow icons ─────────────────────────────── */
+const ArrowLeft = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+    stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M19 12H5M12 19l-7-7 7-7"/>
+  </svg>
+)
+const ArrowRight = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+    stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M5 12h14M12 5l7 7-7 7"/>
+  </svg>
+)
+const DiagonalArrow = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+    stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M7 17L17 7M17 7H7M17 7v10"/>
   </svg>
 )
 
+/* ── Service Data ─────────────────────────────── */
 const services = [
-  { icon: MobileIcon, name: 'Mobile Development', desc: 'High-performance Android & iOS apps built with the latest technologies, delivering seamless user experiences.', color: '#ea580c' },
-  { icon: WebIcon,    name: 'Web Applications',   desc: 'Responsive and scalable web applications for modern businesses that grow with your needs.', color: '#fb923c' },
-  { icon: ShieldIcon, name: 'Security Solutions',  desc: 'Robust security implementations to protect your digital assets and keep your users safe.', color: '#f97316' },
-  { icon: CloudIcon,  name: 'Cloud Solutions',     desc: 'Scalable cloud infrastructure and deployment strategies that power modern applications.', color: '#ea580c' },
+  {
+    num:   '01',
+    name:  'MOBILE DEVELOPMENT',
+    short: 'Mobile Apps',
+    desc:  'At Gencoft, we craft high-performance Android & iOS apps built with the latest technologies, delivering seamless user experiences that users love and businesses rely on.',
+    image: mobileSrc,
+    watermark: 'MOBILE',
+  },
+  {
+    num:   '02',
+    name:  'WEB APPLICATIONS',
+    short: 'Web Apps',
+    desc:  'At Gencoft, we build responsive and scalable web applications for modern businesses — engineered to grow with your needs and impress every visitor from first load.',
+    image: webSrc,
+    watermark: 'WEB',
+  },
+  {
+    num:   '03',
+    name:  'SECURITY SOLUTIONS',
+    short: 'Security',
+    desc:  'At Gencoft, we implement robust security frameworks to protect your digital assets, prevent breaches, and keep your users — and their data — completely safe.',
+    image: secSrc,
+    watermark: 'SECURE',
+  },
+  {
+    num:   '04',
+    name:  'CLOUD SOLUTIONS',
+    short: 'Cloud',
+    desc:  'At Gencoft, we architect and deploy scalable cloud infrastructure using leading platforms, powering modern applications with reliability, speed, and zero downtime.',
+    image: cloudSrc,
+    watermark: 'CLOUD',
+  },
 ]
 
-const containerVariants = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.12 } }
-}
-
+/* ── Animation Variants ──────────────────────── */
 const cardVariants = {
-  hidden: { opacity: 0, y: 60, scale: 0.95 },
-  visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] } }
+  enter:  (dir) => ({ opacity: 0, x: dir > 0 ? 80  : -80,  scale: 0.96 }),
+  center:         ({ opacity: 1, x: 0, scale: 1,   transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] } }),
+  exit:   (dir) => ({ opacity: 0, x: dir > 0 ? -80 :  80,  scale: 0.96, transition: { duration: 0.35 } }),
 }
-
-const headerVariants = {
-  hidden: { opacity: 0, y: 30 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] } }
+const imgVariants = {
+  enter:  (dir) => ({ opacity: 0, x: dir > 0 ? 60  : -60, scale: 1.04 }),
+  center:         ({ opacity: 1, x: 0, scale: 1,  transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1], delay: 0.05 } }),
+  exit:   (dir) => ({ opacity: 0, x: dir > 0 ? -60 :  60, scale: 0.96, transition: { duration: 0.35 } }),
 }
 
 export default function Services() {
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, margin: '-100px' })
+  const [index, setIndex]     = useState(0)
+  const [direction, setDir]   = useState(1)
+
+  const go = useCallback((delta) => {
+    setDir(delta)
+    setIndex(prev => (prev + delta + services.length) % services.length)
+  }, [])
+
+  const current = services[index]
 
   return (
-    <section className="section services" id="services">
-      <div className="container">
-        <motion.div
-          className="section-header"
-          variants={headerVariants}
-          initial="hidden"
-          animate={isInView ? 'visible' : 'hidden'}
-          ref={ref}
-        >
-          <div className="section-tag">
-            <WhatWeDoIcon /> What We Do
-          </div>
-          <h2 className="section-title">
-            Our <span className="gradient-text">Services</span>
-          </h2>
-          <p className="section-subtitle">
-            Comprehensive software solutions for your business needs
-          </p>
-        </motion.div>
+    <section className="svc-root" id="services">
 
-        <motion.div
-          className="services-grid"
-          variants={containerVariants}
-          initial="hidden"
-          animate={isInView ? 'visible' : 'hidden'}
-        >
-          {services.map((service) => {
-            const Icon = service.icon
-            return (
-              <motion.div
-                key={service.name}
-                className="service-card"
-                variants={cardVariants}
-                whileHover={{ scale: 1.04, rotateY: 6, rotateX: -4, z: 15 }}
-                transition={{ type: 'spring', stiffness: 220, damping: 20 }}
-              >
-
-                <div className="service-corner" />
-                <motion.div
-                  className="service-icon-wrap"
-                  whileHover={{ rotate: [0, -10, 10, 0], scale: 1.15 }}
-                  transition={{ duration: 0.4 }}
-                  style={{ color: service.color }}
-                >
-                  <Icon />
-                </motion.div>
-                <h3 className="service-name">{service.name}</h3>
-                <p className="service-desc">{service.desc}</p>
-
-                <motion.div
-                  style={{
-                    position: 'absolute',
-                    bottom: 0, left: 0,
-                    height: '2px',
-                    background: `linear-gradient(90deg, ${service.color}, transparent)`,
-                    width: '0%',
-                    borderRadius: '0 0 0 var(--radius-lg)',
-                  }}
-                  whileHover={{ width: '100%' }}
-                  transition={{ duration: 0.4 }}
-                />
-              </motion.div>
-            )
-          })}
-        </motion.div>
+      {/* ── Full-width background watermark ── */}
+      <div className="svc-watermark" aria-hidden="true">
+        {current.watermark}
       </div>
+
+      {/* ── Section label (top-center) ── */}
+      <div className="svc-top-label">
+        <span className="svc-top-dot" />
+        What We Do
+      </div>
+
+      {/* ── Main stage ── */}
+      <div className="svc-stage">
+
+        {/* Left arrow */}
+        <button
+          className="svc-arrow svc-arrow-left"
+          onClick={() => go(-1)}
+          aria-label="Previous service"
+        >
+          <ArrowLeft />
+        </button>
+
+        {/* Slide area */}
+        <div className="svc-slide-area">
+          <AnimatePresence mode="wait" custom={direction}>
+            <motion.div
+              key={current.num}
+              className="svc-slide"
+              custom={direction}
+              variants={{ enter: cardVariants.enter, center: cardVariants.center, exit: cardVariants.exit }}
+              initial="enter"
+              animate="center"
+              exit="exit"
+            >
+              {/* ── Info card (left, overlapping) ── */}
+              <div className="svc-info-card">
+                <span className="svc-service-badge">SERVICE {current.num}</span>
+                <h2 className="svc-service-title">{current.name}</h2>
+                <p className="svc-service-desc">{current.desc}</p>
+                <a href="#contact" className="svc-view-btn">
+                  GET IN TOUCH <DiagonalArrow />
+                </a>
+              </div>
+
+              {/* ── Image panel (right, behind card) ── */}
+              <motion.div
+                className="svc-img-panel"
+                custom={direction}
+                variants={imgVariants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+              >
+                <img
+                  src={current.image}
+                  alt={current.name}
+                  className="svc-img"
+                  draggable={false}
+                />
+                {/* Gradient overlay to blend with dark bg */}
+                <div className="svc-img-overlay" />
+              </motion.div>
+            </motion.div>
+          </AnimatePresence>
+        </div>
+
+        {/* Right arrow */}
+        <button
+          className="svc-arrow svc-arrow-right"
+          onClick={() => go(1)}
+          aria-label="Next service"
+        >
+          <ArrowRight />
+        </button>
+      </div>
+
+      {/* ── Dot indicators ── */}
+      <div className="svc-dots">
+        {services.map((_, i) => (
+          <button
+            key={i}
+            className={`svc-dot ${i === index ? 'active' : ''}`}
+            onClick={() => { setDir(i > index ? 1 : -1); setIndex(i) }}
+            aria-label={`Go to service ${i + 1}`}
+          />
+        ))}
+      </div>
+
     </section>
   )
 }
