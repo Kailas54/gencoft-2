@@ -1,6 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence, useInView, useMotionValue, useSpring, useTransform } from 'framer-motion'
 
+import findMeCourtsLogo from '../assets/activepass logo findmecourt.png'
+import quizWizardLogo from '../assets/quizwizard logo.png'
+import strawketLogo from '../assets/strawket logo.png'
+import manageUpgradesLogo from '../assets/manageupgrades.png'
+import bracketoroLogo from '../assets/bracketoro logo.svg'
+import brandflyersLogo from '../assets/brandflyers logo.png'
+
 /* ── Project data ── */
 const projects = [
   {
@@ -12,13 +19,7 @@ const projects = [
     tags: ['React', 'JavaScript', 'jQuery', 'Amazon S3', 'AWS'],
     link: '#',
     accent: '#ea580c',
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="12" cy="12" r="10"/>
-        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-        <path d="M2 12h20"/>
-      </svg>
-    ),
+    logo: findMeCourtsLogo,
   },
   {
     id: 'qw',
@@ -29,13 +30,7 @@ const projects = [
     tags: ['React', 'Emotion', 'core-js', 'jQuery', 'Amazon S3', 'AWS'],
     link: '#',
     accent: '#ea580c',
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
-        <circle cx="12" cy="12" r="10"/>
-        <line x1="12" y1="17" x2="12.01" y2="17"/>
-      </svg>
-    ),
+    logo: quizWizardLogo,
   },
   {
     id: 'stk',
@@ -46,12 +41,7 @@ const projects = [
     tags: ['JavaScript', 'React', 'Bootstrap', 'AWS'],
     link: '#',
     accent: '#ea580c',
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M12 20h9"/>
-        <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
-      </svg>
-    ),
+    logo: strawketLogo,
   },
   {
     id: 'mu',
@@ -62,13 +52,29 @@ const projects = [
     tags: ['React.js', 'Next.js', 'Tailwind', 'MongoDB'],
     link: '#',
     accent: '#ea580c',
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="12" cy="12" r="3"/>
-        <path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/>
-        <path d="M15.54 8.46a5 5 0 0 1 0 7.07M8.46 8.46a5 5 0 0 0 0 7.07"/>
-      </svg>
-    ),
+    logo: manageUpgradesLogo,
+  },
+  {
+    id: 'bt',
+    name: 'Bracketoro',
+    number: '05',
+    category: 'Tournament Manager',
+    desc: 'A comprehensive tournament bracket generator and management system, helping organizers host leagues, track brackets, and manage real-time game results.',
+    tags: ['React', 'TypeScript', 'Node.js', 'PostgreSQL', 'Tailwind'],
+    link: '#',
+    accent: '#ea580c',
+    logo: bracketoroLogo,
+  },
+  {
+    id: 'bf',
+    name: 'Brandflyers',
+    number: '06',
+    category: 'Marketing Platform',
+    desc: 'An automated flyer and marketing asset generator tailored for brands, connecting businesses with design templates to boost their social media presence.',
+    tags: ['React', 'Next.js', 'Tailwind CSS', 'AWS Lambda', 'DynamoDB'],
+    link: '#',
+    accent: '#ea580c',
+    logo: brandflyersLogo,
   },
 ]
 
@@ -280,7 +286,7 @@ export default function Projects() {
                     whileHover={{ rotate: [0, -8, 8, 0], scale: 1.12 }}
                     transition={{ duration: 0.45 }}
                   >
-                    {project.icon}
+                    <img src={project.logo} alt={project.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                   </motion.div>
 
                   <motion.h3 className="pj-name" variants={rowV}>
@@ -312,40 +318,42 @@ export default function Projects() {
               </TiltCard>
 
               {/* ── Right: visual side ── */}
-              <TiltCard
-                className="pj-page-right"
-                isMobile={isMobile}
-                style={{ transformStyle: 'preserve-3d' }}
-              >
-                <div className="pj-right-grid" />
-
-                <motion.div
-                  className="pj-right-glow"
-                  animate={{ scale: [1, 1.18, 1], opacity: [0.45, 0.95, 0.45] }}
-                  transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
-                />
-
-                {/* Floating icon with depth */}
-                <motion.div
-                  className="pj-right-icon"
-                  initial={{ scale: 0.7, opacity: 0, y: 20 }}
-                  animate={{ scale: 1, opacity: 1, y: 0 }}
-                  transition={{ duration: 0.7, delay: 0.3, ease: EASE_BACK }}
-                  whileHover={{ scale: 1.08, rotate: 4 }}
+              {!isMobile && (
+                <TiltCard
+                  className="pj-page-right"
+                  isMobile={isMobile}
+                  style={{ transformStyle: 'preserve-3d' }}
                 >
-                  {project.icon}
-                </motion.div>
+                  <div className="pj-right-grid" />
 
-                {/* Orbiting ring decoration */}
-                <motion.div
-                  className="pj-orbit-ring"
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 18, repeat: Infinity, ease: 'linear' }}
-                />
+                  <motion.div
+                    className="pj-right-glow"
+                    animate={{ scale: [1, 1.18, 1], opacity: [0.45, 0.95, 0.45] }}
+                    transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
+                  />
 
-                <div className="pj-right-num">{project.number}</div>
-                <div className="pj-right-label">{project.name.toUpperCase()}</div>
-              </TiltCard>
+                  {/* Floating icon with depth */}
+                  <motion.div
+                    className="pj-right-icon"
+                    initial={{ scale: 0.7, opacity: 0, y: 20 }}
+                    animate={{ scale: 1, opacity: 1, y: 0 }}
+                    transition={{ duration: 0.7, delay: 0.3, ease: EASE_BACK }}
+                    whileHover={{ scale: 1.08, rotate: 4 }}
+                  >
+                    <img src={project.logo} alt={project.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                  </motion.div>
+
+                  {/* Orbiting ring decoration */}
+                  <motion.div
+                    className="pj-orbit-ring"
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 18, repeat: Infinity, ease: 'linear' }}
+                  />
+
+                  <div className="pj-right-num">{project.number}</div>
+                  <div className="pj-right-label">{project.name.toUpperCase()}</div>
+                </TiltCard>
+              )}
             </motion.div>
           </AnimatePresence>
         </div>

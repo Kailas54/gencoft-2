@@ -99,6 +99,10 @@ export default function Services() {
         What We Do
       </div>
 
+      <h2 className="svc-main-title">
+        Our <span className="svc-title-accent">Services</span>
+      </h2>
+
       {/* ── Main stage ── */}
       <div className="svc-stage">
 
